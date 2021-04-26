@@ -12,7 +12,8 @@
 /build
 
 # misc
-.txt
+kodeBank.txt
+data.txt
 .DS_Store
 .env.local
 .env.development.local

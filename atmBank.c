@@ -31,7 +31,7 @@ void outputPenarikan(float jumlah);
 void transaksiLain();
 int penarikanTunai();
 void antarBank();
-void antarBank2();
+void lanjutTransaksi();
 void antarRekening();
 void updateSaldo(float jumlah);
 int menu();
@@ -365,9 +365,9 @@ void antarBank(){
     fclose(fp);
 
     system("cls");
-    printf("===================================================================\n");
+    printf("========================================================================\n");
     printf("\t\t             DAFTAR BANK           \n");
-    printf("===================================================================\n");
+    printf("========================================================================\n");
     printf("\n");
     for(int j=0;j<counter;j++){
         if(j % 2 == 0){
@@ -383,7 +383,7 @@ void antarBank(){
 
     for(int j=0;j<counter;j++){
         if(strcmp(kodeBank[j].kode, inputKode) == 0){
-            antarBank2();
+            lanjutTransaksi();
             return;
         }
     }
@@ -392,11 +392,13 @@ void antarBank(){
     goto label2;
 }
 
-void antarBank2(){
+void lanjutTransaksi(){
     float saldoTransfer;
-    char inputRek[20], userInput[2], inputKode[10];
+    char inputRek[20], userInput[2];
+    int counter = 0, ctr = 0;
 
     FILE *fp = fopen("data.txt", "r");
+    FILE *fp2 = fopen("rekeningData.txt", "r");
 
     printf("Masukkan Nomor Rekening Tujuan : ");
     scanf("%s", &inputRek); fflush(stdin);
@@ -404,20 +406,14 @@ void antarBank2(){
     while(!feof(fp)) {
         fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^#]#%f\n", &pengguna[counter].nama, &pengguna[counter].noRek, &pengguna[counter].userPIN, &pengguna[counter].namaBank, &pengguna[counter].saldoUser);
 
-        if(strcmp(pengguna[counter].noRek, inputRek) == 0 && strcmp(pengguna[counter].namaBank, inputKode) == 0){
+        if(strcmp(pengguna[counter].noRek, inputRek) == 0 && strcmp(pengguna[counter].namaBank, 'BCA') != 0){
             break;
         }
 
         counter++;
-
     }
 
     fclose(fp);
-
-    if(strcmp(pengguna[counter].noRek, inputRek) != 0 && strcmp(pengguna[counter].namaBank, "BCA") != 0){
-        printf("Nomor Rekening yang Anda Masukkan Tidak Terdaftar!\n");
-        return;
-    }
 
     printf("Masukkan Jumlah Uang yang Ingin Anda Transfer : ");
     scanf("%f", &saldoTransfer); fflush(stdin);
