@@ -36,18 +36,19 @@ int dataTotal = 0, index = 0, counter = 0; // menyimpan iterasi untuk mencari in
 
 //Functions List
 void showMenu();
-int menuLagi();
+int login();
+void createNewNode(char nama[], char noRek[], char userPIN[], char namaBank[], float saldoUser);
 void readData();
 void pinToAsterisk(char pin[]);
 int checkPin();
 int transaksiLagi();
-int transfer();
+int showTransferMenu();
 int gantiPin();
 void outputPenarikan(float jumlah);
 void transaksiLain();
-int penarikanTunai();
+int showMenuPenarikanTunai();
 int antarBank();
-void lanjutTransaksi();
+void lanjutTransaksi(char inputKode);
 void antarRekening();
 void updateSaldo(float jumlah);
 int menu();
@@ -69,6 +70,10 @@ int main() {
     return 0;
 }
 
+/*
+* function showMenu berfungsi untuk menampilkan tampilan awal program yang mana
+* berisi daftar menu yang tersedia di program ATM inin
+*/
 void showMenu() {
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
     printf("+\t               MENU               \t+\n");
@@ -78,7 +83,11 @@ void showMenu() {
     printf("\n\nPilihan : ");
 }
 
-int menuLagi(){
+/*
+* function login berguna sesuai dengan nama function ini sendiri, yaitu meminta pengguna
+* untuk login menggunakan PIN nya.
+*/
+int login(){
     char insertUlangPIN[7];
 
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
@@ -90,6 +99,8 @@ int menuLagi(){
 
     int ctr = 3;
 
+    // syntax do while dipakai untuk melakukan checking PIN yang diinsert oleh pengguna
+    // Jika PIN yang dimasukkan oleh pengguna telah salah sebanyak 3x, pengguna akan terblokir dari ATM
     do{
         for(int j= 0; j < 3; j++) {
             if(strcmp(insertUlangPIN, insertPin) == 0) {
@@ -114,6 +125,8 @@ int menuLagi(){
     return 0;
 }
 
+
+// Penerapan Linked List berdasarkan Struct data yang mana akan memasukkan data ke struct tersebut
 void createNewNode(char nama[], char noRek[], char userPIN[], char namaBank[], float saldoUser) {
     node = (struct data*) malloc(sizeof(struct data));
     node->next = NULL;
@@ -130,8 +143,9 @@ void createNewNode(char nama[], char noRek[], char userPIN[], char namaBank[], f
         tail->next = node;
         tail = node;
     }
- }
+}
 
+// function readData berfungsi untuk membaca seluruh data yang ada di file data.txt
 void readData() {
     FILE *fp = fopen("data.txt", "r");
 
@@ -143,6 +157,10 @@ void readData() {
     fclose(fp);
 }
 
+/*
+* function ini berfungsi sesuai dengan penamaannya, yaitu untuk mengubah PIN yang
+* di input oleh user menjadi bintang/ asterisk (*) seperti layaknya di ATM pada umumnya
+*/ 
 void pinToAsterisk(char pin[]) {
     char ch;
     int i = 0;
@@ -167,6 +185,10 @@ void pinToAsterisk(char pin[]) {
     pin[i] = '\0';
 }
 
+/*
+* function checkPin berguna untuk membandingkan PIN yang diinput
+* yang bertujuan untuk memastikan bahwa pengguna yang login benar-benar dari bank BCA-KW
+*/
 int checkPin() {
     int ctr = 3;
 
@@ -194,6 +216,10 @@ int checkPin() {
 
 }
 
+/*
+* function transaksiLagi berguna untuk memastikan apakah user ingin melakukan transaksi lagi
+* setelah melakukan sebuah transaksi dengan menerima input dari user berupa Y/y atau N/n
+*/
 int transaksiLagi() {
     char userInput[2];
 
@@ -204,7 +230,7 @@ int transaksiLagi() {
 
     if(userInput[0] == 'Y' || userInput[0] == 'y') {
         system("cls");
-        menuLagi();
+        login();
     } else if (userInput[0] == 'N' || userInput[0] == 'n') {
         return 0;
     } else {
@@ -215,7 +241,8 @@ int transaksiLagi() {
     }
 }
 
-int transfer() {
+// function showTransferMenu berguna untuk menampilkan daftar transfer yang didukung oleh program ATM ini
+int showTransferMenu() {
     int userInput;
 
     system("cls");
@@ -245,6 +272,12 @@ int transfer() {
     }
 }
 
+/*
+* function gantiPin berguna untuk user yang ingin mengganti PIN miliknya dengan memasukkan PIN lama
+* setelah itu user akan diminta memasukkan PIN baru yang ingin dibuat dan melakukan konfirmasi
+* konfirmasi dilakukan dengan menginput PIN baru sekali lagi
+* setelah itu proses gantiPin selesai
+*/
 int gantiPin() {
     char pinLama[7], pinBaru[7], konfirmasiPIN[7];
 
@@ -290,6 +323,10 @@ int gantiPin() {
 
 }
 
+/*
+* function outputPenarikan berguna untuk mengurangi saldo pengguna sesuai dengan jumlah saldo yang 
+* dipilih oleh pengguna, setelah itu menampilkan sisa saldo yang dimiliki pengguna
+*/
 void outputPenarikan(float jumlah) {
     FILE *fp = fopen("data.txt", "r+");
 
@@ -308,6 +345,11 @@ void outputPenarikan(float jumlah) {
     }
 }
 
+/*
+* function transaksiLain berguna untuk user yang ingin melakukan transaksi,  
+* tetapi nomimal transfer yang diinginkan tidak terdapat di menu, sehingga user dapat menginput
+* nominal transfer yang diinginkan secara manual
+*/
 void transaksiLain() {
     int inputPenarikan;
 
@@ -320,7 +362,11 @@ void transaksiLain() {
     transaksiLagi();
 }
 
-int penarikanTunai() {
+/*
+* function showMenuPenarikanTunai berguna untuk menampilkan daftar nomimal penarikan tunai 
+* yang disediakan secara default oleh program ATM ini
+*/
+int showMenuPenarikanTunai() {
     int userInput;
 
     system("cls");
@@ -358,7 +404,6 @@ int penarikanTunai() {
         outputPenarikan(2500000);
         transaksiLagi();
         break;
-
     case 9:
         transaksiLain();
         break;
@@ -380,13 +425,13 @@ int antarBank(){
     fclose(fp);
 
     system("cls");
-    printf("========================================================================\n");
+    printf("====================================================================\n");
     printf("\t\t             DAFTAR BANK           \n");
-    printf("========================================================================\n");
+    printf("====================================================================\n");
     printf("\n");
     for(int j=0;j<counter;j++){
         if(j % 2 == 0){
-            printf(">>%-27s - %s   || ", kodeBank[j].nama, kodeBank[j].kode);
+            printf(">>%-23s - %s   || ", kodeBank[j].nama, kodeBank[j].kode);
         } else {
             printf("   %s - %20s<<\n", kodeBank[j].kode, kodeBank[j].nama);
         }
@@ -412,7 +457,7 @@ int antarBank(){
     goto label2;
 }
 
-void lanjutTransaksi(inputKode){
+void lanjutTransaksi(char inputKode){
     float saldoTransfer;
     char inputRek[11], userInput[2];
     int ctr = 0;
@@ -563,10 +608,10 @@ int menu() {
         transaksiLagi();
         break;
     case 2:
-        transfer();
+        showTransferMenu();
         break;
     case 3:
-        penarikanTunai();
+        showMenuPenarikanTunai();
         break;
     case 4:
         gantiPin();
