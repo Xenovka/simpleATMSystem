@@ -1,24 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <conio.h>
+#include <string.h>
 
 //Struct
+/*
+* Struct data berfungsi untuk menyimpan data semua user yang dapat melakukan transaksi yang
+* sudah kami siapkan di file txt yang bernama data.txt
+*/
 struct data {
     char userPIN[7], nama[250], noRek[20], namaBank[100];
     float saldoUser;
     struct data *next;
 } pengguna[255], *head, *tail, *node;
 
+/*
+* Struct dataBank berfungsi menyimpan daftar nama bank beserta dengan kode bank 
+* yang dapat melakukan transaksi pada program ATM bank kami
+*/
 struct dataBank {
     char nama[100], kode[10];
 } kodeBank[50];
 
-//GLOBAL VARIABLE
-char insertPin[7];
-int dataTotal = 0, index = 0, counter = 0;
+/*
+* Struct rekeningData berfungsi untuk menyimpan data nomor rekening pengguna 
+* beserta kode bank yang akan kami gunakan pada saat transaksi nantinya
+*/
+struct rekeningData{
+    char noRek[20], kode[10];
+}rekeningData[50];
 
-//Functions
+//GLOBAL VARIABLE
+char insertPin[7]; // digunakan untuk menampung PIN yang di insert oleh pengguna
+int dataTotal = 0, index = 0, counter = 0; // menyimpan iterasi untuk mencari index dari pengguna
+
+//Functions List
 void showMenu();
 int menuLagi();
 void readData();
@@ -30,7 +46,7 @@ int gantiPin();
 void outputPenarikan(float jumlah);
 void transaksiLain();
 int penarikanTunai();
-void antarBank();
+int antarBank();
 void lanjutTransaksi();
 void antarRekening();
 void updateSaldo(float jumlah);
@@ -97,6 +113,7 @@ int menuLagi(){
 
     return 0;
 }
+
 void createNewNode(char nama[], char noRek[], char userPIN[], char namaBank[], float saldoUser) {
     node = (struct data*) malloc(sizeof(struct data));
     node->next = NULL;
@@ -114,7 +131,6 @@ void createNewNode(char nama[], char noRek[], char userPIN[], char namaBank[], f
         tail = node;
     }
  }
-
 
 void readData() {
     FILE *fp = fopen("data.txt", "r");
@@ -162,8 +178,8 @@ int checkPin() {
             }
         }
 
-        printf("\n   PIN Atau BANK Salah! Batas input tersisa %d kali\n", ctr);
-        printf("\t\tMasukkan PIN Anda : ");
+        printf("\n   PIN Atau BANK Salah! Batas input tersisa %d kali\n\n", ctr);
+        printf("\t\tMasukkan PIN Anda : \n\t\t       ");
 
         pinToAsterisk(insertPin);
         ctr--;
@@ -232,7 +248,6 @@ int transfer() {
 int gantiPin() {
     char pinLama[7], pinBaru[7], konfirmasiPIN[7];
 
-    printf("%s\n", insertPin);
     printf("Masukkan PIN Lama : ");
     pinToAsterisk(pinLama);
 
@@ -242,7 +257,7 @@ int gantiPin() {
 
         printf("\nMasukkan PIN Baru : ");
         pinToAsterisk(pinBaru);
-
+       
         printf("\nKonfirmasi PIN Baru : ");
         pinToAsterisk(konfirmasiPIN);
 
@@ -258,7 +273,7 @@ int gantiPin() {
             }
 
             printf("\nPIN Berhasil Diganti!\n\n");
-            transaksiLagi();
+            return 0;
 
         } else {
             printf("\n\nPIN Tidak Cocok!");
@@ -352,7 +367,7 @@ int penarikanTunai() {
     }
 }
 
-void antarBank(){
+int antarBank(){
     int counter = 0;
     char inputKode[10], inputRekening[15];
     FILE *fp = fopen("kodeBank.txt", "r");
@@ -381,9 +396,14 @@ void antarBank(){
     printf("\nInput Kode Bank yang Ingin Dituju : ");
     scanf("%s", &inputKode); fflush(stdin);
 
+    if(strcmp(inputKode, "014") == 0){
+        printf("Silahkan Gunakan Transfer Antar Rekening.\n");
+        return 0;
+    }
+
     for(int j=0;j<counter;j++){
         if(strcmp(kodeBank[j].kode, inputKode) == 0){
-            lanjutTransaksi();
+            lanjutTransaksi(inputKode);
             return;
         }
     }
@@ -392,10 +412,10 @@ void antarBank(){
     goto label2;
 }
 
-void lanjutTransaksi(){
+void lanjutTransaksi(inputKode){
     float saldoTransfer;
-    char inputRek[20], userInput[2];
-    int counter = 0, ctr = 0;
+    char inputRek[11], userInput[2];
+    int ctr = 0;
 
     FILE *fp = fopen("data.txt", "r");
     FILE *fp2 = fopen("rekeningData.txt", "r");
@@ -404,25 +424,56 @@ void lanjutTransaksi(){
     scanf("%s", &inputRek); fflush(stdin);
 
     while(!feof(fp)) {
-        fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^#]#%f\n", &pengguna[counter].nama, &pengguna[counter].noRek, &pengguna[counter].userPIN, &pengguna[counter].namaBank, &pengguna[counter].saldoUser);
+        fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^#]#%f\n", &pengguna[ctr].nama, &pengguna[ctr].noRek, &pengguna[ctr].userPIN, &pengguna[ctr].namaBank, &pengguna[ctr].saldoUser);
+        fscanf(fp2, "%[^#]#%[^\n]", rekeningData[ctr].noRek, &rekeningData[ctr].kode);
 
-        if(strcmp(pengguna[counter].noRek, inputRek) == 0 && strcmp(pengguna[counter].namaBank, 'BCA') != 0){
-            break;
+
+        if(strcmp(pengguna[ctr].noRek, inputRek) == 0 && strcmp(pengguna[ctr].namaBank, "BCA") != 0){
+            if(strcmp(rekeningData[ctr].kode, inputKode) == 0){
+                break;
+            }else{
+                printf("\nNomor Rekening yang Anda Tuju Tidak Terdaftar di Bank Tersebut!\n");
+                return;
+            }
         }
+        ctr++;
+    }
 
-        counter++;
+    if(strcmp(pengguna[ctr].noRek, inputRek) != 0){
+        printf("Nomor Rekening yang Dimasukkan Salah!\n");
+        return;
     }
 
     fclose(fp);
 
     printf("Masukkan Jumlah Uang yang Ingin Anda Transfer : ");
     scanf("%f", &saldoTransfer); fflush(stdin);
+
+    if(saldoTransfer > pengguna[counter].saldoUser){
+        printf("Saldo tidak mencukupi\n");
+        return 0;
+    }
+
+    fp = fopen("data.txt", "r+");
+
+    node = head;
+
+    while(node != NULL){
+        if(strcmp(node->nama, pengguna[ctr].nama) == 0) {
+            node->saldoUser += saldoTransfer;
+        }
+        fprintf(fp, "%s#%s#%s#%s#%.f\n", node->nama, node->noRek, node->userPIN, node->namaBank, node->saldoUser);
+        node = node->next;
+    }
+
+    fclose(fp);
+
+
     printf("Apakah Anda Yakin? [Y/N] : ");
     scanf("%s", &userInput); fflush(stdin);
 
     if(userInput[0] == 'Y' || userInput[0] == 'y') {
         outputPenarikan(saldoTransfer);
-        updateSaldo(saldoTransfer);
         printf("\nTransaksi Berhasil!");
         getch();
     } else if (userInput[0] == 'N' || userInput[0] == 'n') {
