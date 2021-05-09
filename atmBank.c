@@ -15,7 +15,7 @@ struct data {
 } pengguna[255], *head, *tail, *node;
 
 /*
-* Struct dataBank berfungsi menyimpan daftar nama bank beserta dengan kode bank 
+* Struct dataBank berfungsi menyimpan daftar nama bank beserta dengan kode bank
 * yang dapat melakukan transaksi pada program ATM bank kami
 */
 struct dataBank {
@@ -23,7 +23,7 @@ struct dataBank {
 } kodeBank[50];
 
 /*
-* Struct rekeningData berfungsi untuk menyimpan data nomor rekening pengguna 
+* Struct rekeningData berfungsi untuk menyimpan data nomor rekening pengguna
 * beserta kode bank yang akan kami gunakan pada saat transaksi nantinya
 */
 struct rekeningData{
@@ -48,7 +48,7 @@ void outputPenarikan(float jumlah);
 void transaksiLain();
 int showMenuPenarikanTunai();
 int antarBank();
-void lanjutTransaksi(char inputKode);
+void lanjutTransaksi(inputKode);
 void antarRekening();
 void updateSaldo(float jumlah);
 int menu();
@@ -160,7 +160,7 @@ void readData() {
 /*
 * function ini berfungsi sesuai dengan penamaannya, yaitu untuk mengubah PIN yang
 * di input oleh user menjadi bintang/ asterisk (*) seperti layaknya di ATM pada umumnya
-*/ 
+*/
 void pinToAsterisk(char pin[]) {
     char ch;
     int i = 0;
@@ -290,7 +290,7 @@ int gantiPin() {
 
         printf("\nMasukkan PIN Baru : ");
         pinToAsterisk(pinBaru);
-       
+
         printf("\nKonfirmasi PIN Baru : ");
         pinToAsterisk(konfirmasiPIN);
 
@@ -324,7 +324,7 @@ int gantiPin() {
 }
 
 /*
-* function outputPenarikan berguna untuk mengurangi saldo pengguna sesuai dengan jumlah saldo yang 
+* function outputPenarikan berguna untuk mengurangi saldo pengguna sesuai dengan jumlah saldo yang
 * dipilih oleh pengguna, setelah itu menampilkan sisa saldo yang dimiliki pengguna
 */
 void outputPenarikan(float jumlah) {
@@ -346,7 +346,7 @@ void outputPenarikan(float jumlah) {
 }
 
 /*
-* function transaksiLain berguna untuk user yang ingin melakukan transaksi,  
+* function transaksiLain berguna untuk user yang ingin melakukan transaksi,
 * tetapi nomimal transfer yang diinginkan tidak terdapat di menu, sehingga user dapat menginput
 * nominal transfer yang diinginkan secara manual
 */
@@ -363,7 +363,7 @@ void transaksiLain() {
 }
 
 /*
-* function showMenuPenarikanTunai berguna untuk menampilkan daftar nomimal penarikan tunai 
+* function showMenuPenarikanTunai berguna untuk menampilkan daftar nominal penarikan tunai
 * yang disediakan secara default oleh program ATM ini
 */
 int showMenuPenarikanTunai() {
@@ -412,6 +412,10 @@ int showMenuPenarikanTunai() {
     }
 }
 
+/*
+* function antarBank berguna untuk menampilkan daftar bank yang dapat dituju
+* dan menerima input kodeBank
+*/
 int antarBank(){
     int counter = 0;
     char inputKode[10], inputRekening[15];
@@ -457,7 +461,11 @@ int antarBank(){
     goto label2;
 }
 
-void lanjutTransaksi(char inputKode){
+/*
+* function lanjutTransaksi berguna untuk menerima input nomor rekening yang dituju oleh pengguna
+* dan menerima jumlah saldo yang ingin ditransfer.
+*/
+void lanjutTransaksi(inputKode){
     float saldoTransfer;
     char inputRek[11], userInput[2];
     int ctr = 0;
@@ -530,6 +538,10 @@ void lanjutTransaksi(char inputKode){
     }
 }
 
+/*
+* function antarRekening berguna untuk melakukan transaksi transfer saldo kepada pengguna yang
+* berasal dari bank BCA
+*/
 void antarRekening(){
     float saldoTransfer;
     char inputRek[20], userInput[2];
@@ -577,6 +589,9 @@ void antarRekening(){
     }
 }
 
+/*
+* function updateSaldo berguna untuk mengganti saldo sebelum transaksi dengan saldo setelah melakukan transaksi
+*/
 void updateSaldo(float jumlah) {
     FILE *fp = fopen("data.txt", "r+");
 
@@ -591,6 +606,9 @@ void updateSaldo(float jumlah) {
     }
 }
 
+/*
+* function menu berguna untuk menerima pilihan menu dari pengguna
+*/
 int menu() {
     int userInput;
     system("cls");
