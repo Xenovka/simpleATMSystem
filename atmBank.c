@@ -3,7 +3,8 @@
 #include <conio.h>
 #include <string.h>
 
-//Struct
+#define MAX_LEN 100
+
 /*
 * Struct data berfungsi untuk menyimpan data semua user yang dapat melakukan transaksi yang
 * sudah kami siapkan di file txt yang bernama data.txt
@@ -12,7 +13,7 @@ struct data {
     char userPIN[7], nama[250], noRek[20], namaBank[100];
     float saldoUser;
     struct data *next;
-} pengguna[255], *head, *tail, *node;
+} pengguna[255], sort[255], *head, *tail, *node;
 
 /*
 * Struct dataBank berfungsi menyimpan daftar nama bank beserta dengan kode bank
@@ -21,6 +22,12 @@ struct data {
 struct dataBank {
     char nama[100], kode[10];
 } kodeBank[50];
+
+typedef struct Node {
+  int key, height;
+  struct Node *left, *right;
+} Node;
+
 
 /*
 * Struct rekeningData berfungsi untuk menyimpan data nomor rekening pengguna
@@ -34,29 +41,11 @@ struct rekeningData{
 char insertPin[7]; // digunakan untuk menampung PIN yang di insert oleh pengguna
 int dataTotal = 0, index = 0, counter = 0; // menyimpan iterasi untuk mencari index dari pengguna
 
-//Functions List
-void showMenu();
-int login();
-void createNewNode(char nama[], char noRek[], char userPIN[], char namaBank[], float saldoUser);
-void readData();
-void pinToAsterisk(char pin[]);
-int checkPin();
-int transaksiLagi();
-int showTransferMenu();
-int gantiPin();
-void outputPenarikan(float jumlah);
-void transaksiLain();
-int showMenuPenarikanTunai();
-int antarBank();
-void lanjutTransaksi(inputKode);
-void antarRekening();
-void updateSaldo(float jumlah);
-int menu();
-
 int main() {
     head = tail = node = NULL;
 
     readData();
+    sortingData();
 
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
     printf("+\t   SELAMAT DATANG DI ATM BCA-KW     \t+\n");
@@ -68,6 +57,48 @@ int main() {
     checkPin();
 
     return 0;
+}
+
+/*
+* function sortingData ini digunakan untuk sort data yang ada di data.txt by name 
+* lalu di store ke file baru bernama sortedData. Function ini berjalan setiap program dijalankan
+*/
+int sortingData() {
+    char strTempData[MAX_LEN]; // buat nampung data sementar
+    char **strData = NULL; // masukin semua string yang dibaca
+    int row = 0; // ini buat jumlah lines 
+
+    FILE *fpData = fopen("data.txt", "r");
+    FILE *fpSorted = fopen("sortedData.txt", "a");
+
+    while(fgets(strTempData, MAX_LEN, fpData) != NULL) {
+        if(strchr(strTempData,'\n')) strTempData[strlen(strTempData)-1] = '\0';
+
+        strData = (char**)realloc(strData, sizeof(char**)*(row+1));
+        strData[row] = (char*)calloc(MAX_LEN,sizeof(char));
+        strcpy(strData[row], strTempData);
+        row++;
+    }
+
+    for(int i= 0; i < (row - 1); ++i) {
+        for(int j = 0; j < ( row - i - 1); ++j) {
+            if(strcmp(strData[j], strData[j+1]) > 0) { 
+                strcpy(strTempData, strData[j]); 
+                strcpy(strData[j], strData[j+1]);
+                strcpy(strData[j+1], strTempData);
+            }
+        }
+    }
+
+    for(int i = 0; i < row; i++)
+        fprintf(fpSorted,"%s\n",strData[i]);
+
+    for(int i = 0; i < row; i++)
+        free(strData[i]);
+    
+    free(strData);
+    fclose(fpData);
+    fclose(fpSorted);
 }
 
 /*
@@ -171,9 +202,7 @@ void pinToAsterisk(char pin[]) {
             i = 0;
         /* 8 adalah nilai ASCII untuk BACKSPACE */
         if(ch == 8){
-            putch('\b');
-            putch(NULL);
-            putch('\b');
+            printf("%c%c%c", '\b', 32, '\b');
             i--;
             continue;
         }
@@ -281,17 +310,18 @@ int showTransferMenu() {
 int gantiPin() {
     char pinLama[7], pinBaru[7], konfirmasiPIN[7];
 
-    printf("Masukkan PIN Lama : ");
+    system("cls");
+    printf("\t\t Masukkan PIN Lama : \n\t\t\t");
     pinToAsterisk(pinLama);
 
     FILE *fp = fopen("data.txt", "r+");
 
     if(strcmp(insertPin, pinLama) == 0){
 
-        printf("\nMasukkan PIN Baru : ");
+        printf("\n\t\t Masukkan PIN Baru : \n\t\t\t");
         pinToAsterisk(pinBaru);
 
-        printf("\nKonfirmasi PIN Baru : ");
+        printf("\n\t\tKonfirmasi PIN Baru : \n\t\t\t");
         pinToAsterisk(konfirmasiPIN);
 
         if(strcmp(pinBaru, konfirmasiPIN) == 0){
@@ -305,17 +335,17 @@ int gantiPin() {
                 node = node->next;
             }
 
-            printf("\nPIN Berhasil Diganti!\n\n");
+            printf("\n\t\tPIN Berhasil Diganti!\n\n");
             return 0;
 
         } else {
-            printf("\n\nPIN Tidak Cocok!");
-            printf("\nProses Dibatalkan!\n");
+            printf("\n\n\t          PIN Tidak Cocok!");
+            printf("\n\t         Proses Dibatalkan!\n");
             return 0;
         }
 
     } else {
-        printf("\n\nPin yang Anda Masukkan Salah!\n");
+        printf("\n\n\t   Pin yang Anda Masukkan Salah!\n");
         return 0;
     }
 
@@ -362,6 +392,102 @@ void transaksiLain() {
     transaksiLagi();
 }
 
+
+// Pengimplementasian AVL Tree
+int height(struct Node *N){
+  if(N == NULL)
+    return 0;
+  return N->height;
+}
+
+int max(int a, int b){
+  return (a > b) ? a : b;
+}
+
+Node *newNode(int item){
+  Node *temp = (Node *)malloc(sizeof(Node));
+  temp->key = item;
+  temp->left = temp->right = NULL;
+  temp->height = 1;
+  return temp;
+}
+
+Node *leftRotate(Node *x){
+  Node *y = x->right;
+  Node *T2 = y->left;
+
+  y->left = x;
+  x->right = T2;
+
+  x->height = max(height(x->left), height(x->right))+1;
+  y->height = max(height(y->left), height(y->right))+1;
+
+  return y;
+}
+
+Node *rightRotate(Node *y){
+  Node *x = y->left;
+  Node *T2 = x->right;
+
+  x->right = y;
+  y->left = T2;
+
+  y->height = max(height(y->left), height(y->right))+1;
+  x->height = max(height(x->left), height(x->right))+1;
+
+  return x;
+}
+
+int getBalance(Node *N){
+  if(N == NULL)
+    return 0;
+  return height(N->left) - height(N->right);
+}
+
+Node *insert(Node *node, int key){
+  if(node == NULL) return(newNode(key));
+
+  if(key < node->key)
+    node->left = insert(node->left, key);
+  else if(key > node->key)
+    node->right = insert(node->right, key);
+  else
+    return node;
+
+  node->height = 1 + max(height(node->left),
+                         height(node->right));
+
+  int balance = getBalance(node);
+
+  if(balance > 1 && key < node->left->key)
+    return rightRotate(node);
+
+  if(balance < -1 && key > node->right->key)
+    return leftRotate(node);
+
+  if(balance > 1 && key > node->left->key){
+    node->left = leftRotate(node->left);
+    return rightRotate(node);
+  }
+
+  if(balance < -1 && key < node->right->key){
+    node->right = rightRotate(node->right);
+    return leftRotate(node);
+  }
+
+  return node;
+}
+
+void printInorder(Node *node){
+  if(node == NULL) return;
+  printInorder(node->left);
+  printf(">> Rp. %d0.000,00 ", node->key);
+  printf("\n");
+  printInorder(node->right);
+}
+// Akhir dari pengimplementasian AVL Tree
+
+
 /*
 * function showMenuPenarikanTunai berguna untuk menampilkan daftar nominal penarikan tunai
 * yang disediakan secara default oleh program ATM ini
@@ -369,15 +495,17 @@ void transaksiLain() {
 int showMenuPenarikanTunai() {
     int userInput;
 
+    Node *root = NULL;
+
+    int saldoPenarikan[] = {250, 5, 50, 150, 10, 100};
+
+    for(int i=0; i<6; i++) {
+        root = insert(root, saldoPenarikan[i]);
+    }
+
     system("cls");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+  1 >> Rp 50.000,00\t\t\t\t\t Rp 1.000.000,00 << 4\t+\n");
-    printf("+  2 >> Rp 100.000,00\t\t\t\t\t Rp 1.500.000,00 << 5\t+\n");
-    printf("+  3 >> Rp 500.000,00\t\t\t\t\t Rp 2.500.000,00 << 6\t+\n");
-    printf("+  9 >> Transaksi Lain\t\t\t\t\t\tKeluar   << 0\t+\n");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\nPilihan : ");
-    scanf("%d", &userInput); fflush(stdin);
+    printInorder(root);
+    printf("\nPilihan : "); scanf("%d", &userInput); fflush(stdin);
 
     switch(userInput){
     case 1:
@@ -589,9 +717,7 @@ void antarRekening(){
     }
 }
 
-/*
-* function updateSaldo berguna untuk mengganti saldo sebelum transaksi dengan saldo setelah melakukan transaksi
-*/
+//function updateSaldo berguna untuk mengganti saldo sebelum transaksi dengan saldo setelah melakukan transaksi
 void updateSaldo(float jumlah) {
     FILE *fp = fopen("data.txt", "r+");
 
@@ -606,9 +732,8 @@ void updateSaldo(float jumlah) {
     }
 }
 
-/*
-* function menu berguna untuk menerima pilihan menu dari pengguna
-*/
+
+//function menu berguna untuk menerima pilihan menu dari pengguna
 int menu() {
     int userInput;
     system("cls");
