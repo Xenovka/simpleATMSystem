@@ -5,6 +5,12 @@
 
 #define MAX_LEN 100
 
+typedef struct Menu{
+    char angka[4];
+    char fitur[30];
+
+    struct Menu *next;
+} Menu;
 /*
 * Struct data berfungsi untuk menyimpan data semua user yang dapat melakukan transaksi yang
 * sudah kami siapkan di file txt yang bernama data.txt
@@ -28,6 +34,23 @@ typedef struct Node {
   struct Node *left, *right;
 } Node;
 
+int isEmpty(Menu *stack){
+    if(stack == NULL)
+        return 1;
+    return 0;
+}
+
+void push(Menu **stack, char angka[], char fitur[]){
+    Menu *data = (Menu*) malloc(sizeof(Menu));
+    strcpy(data->angka, angka);
+    strcpy(data->fitur, fitur);
+    data->next = NULL;
+
+    if(!isEmpty(*stack)) data->next = *stack;
+    *stack = data;
+    printf("+%20s%-27s+\n", angka, fitur);
+}
+
 
 /*
 * Struct rekeningData berfungsi untuk menyimpan data nomor rekening pengguna
@@ -38,8 +61,8 @@ struct rekeningData{
 }rekeningData[50];
 
 //GLOBAL VARIABLE
-char insertPin[7]; // digunakan untuk menampung PIN yang di insert oleh pengguna
-int dataTotal = 0, index = 0, counter = 0; // menyimpan iterasi untuk mencari index dari pengguna
+char insertPin[7], insertUlangPin[7]; // digunakan untuk menampung PIN yang di insert oleh pengguna
+int dataTotal = 0, index = 0, counter = 0, treeIndex = 0; // menyimpan iterasi untuk mencari index dari pengguna
 
 int main() {
     head = tail = node = NULL;
@@ -47,29 +70,22 @@ int main() {
     readData();
     sortingData();
 
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+\t   SELAMAT DATANG DI ATM BCA-KW     \t+\n");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\n\t\tMasukkan PIN Anda :\n\t\t       ");
-
-    pinToAsterisk(insertPin);
-
-    checkPin();
+    login(insertPin);
 
     return 0;
 }
 
 /*
-* function sortingData ini digunakan untuk sort data yang ada di data.txt by name 
+* function sortingData ini digunakan untuk sort data yang ada di data.txt by name
 * lalu di store ke file baru bernama sortedData. Function ini berjalan setiap program dijalankan
 */
 int sortingData() {
     char strTempData[MAX_LEN]; // buat nampung data sementar
     char **strData = NULL; // masukin semua string yang dibaca
-    int row = 0; // ini buat jumlah lines 
+    int row = 0; // ini buat jumlah lines
 
     FILE *fpData = fopen("data.txt", "r");
-    FILE *fpSorted = fopen("sortedData.txt", "a");
+    FILE *fpSorted = fopen("sortedData.txt", "w");
 
     while(fgets(strTempData, MAX_LEN, fpData) != NULL) {
         if(strchr(strTempData,'\n')) strTempData[strlen(strTempData)-1] = '\0';
@@ -82,8 +98,8 @@ int sortingData() {
 
     for(int i= 0; i < (row - 1); ++i) {
         for(int j = 0; j < ( row - i - 1); ++j) {
-            if(strcmp(strData[j], strData[j+1]) > 0) { 
-                strcpy(strTempData, strData[j]); 
+            if(strcmp(strData[j], strData[j+1]) > 0) {
+                strcpy(strTempData, strData[j]);
                 strcpy(strData[j], strData[j+1]);
                 strcpy(strData[j+1], strTempData);
             }
@@ -95,10 +111,17 @@ int sortingData() {
 
     for(int i = 0; i < row; i++)
         free(strData[i]);
-    
+
     free(strData);
     fclose(fpData);
     fclose(fpSorted);
+}
+
+void printSelamatDatang() {
+    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    printf("+%10sSELAMAT DATANG DI ATM BCA-KW%-9s+\n", "", "");
+    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    printf("\n%16sMasukkan PIN Anda :\n%-22s", "", "");
 }
 
 /*
@@ -107,51 +130,31 @@ int sortingData() {
 */
 void showMenu() {
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+\t               MENU               \t+\n");
+    printf("+%20sMENU%-23s+\n", "", "");
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+\t\t  1. Info Saldo\t\t\t+\n+\t\t  2. Transfer\t\t\t+\n+\t\t  3. Penarikan Tunai\t\t+\n+\t\t  4. Ganti PIN\t\t\t+\n+\t\t  0. Keluar\t\t\t+\n");
+    Menu *stackmenu;
+    stackmenu = NULL;
+    push(&stackmenu, "1. ", "Info Saldo");
+    push(&stackmenu, "2. ", "Transfer");
+    push(&stackmenu, "3. ", "Penarikan Tunai");
+    push(&stackmenu, "4. ", "Ganti PIN");
+    push(&stackmenu, "0. ", "Keluar");
+
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\n\nPilihan : ");
+    printf("\nPilihan : ");
 }
 
 /*
 * function login berguna sesuai dengan nama function ini sendiri, yaitu meminta pengguna
 * untuk login menggunakan PIN nya.
 */
-int login(){
-    char insertUlangPIN[7];
+int login(char userPin[]){
 
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+\t   SELAMAT DATANG DI ATM BCA-KW     \t+\n");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\n\t\tMasukkan PIN Anda :\n\t\t       ");
+    printSelamatDatang();
 
-    pinToAsterisk(insertUlangPIN);
-
-    int ctr = 3;
-
-    // syntax do while dipakai untuk melakukan checking PIN yang diinsert oleh pengguna
-    // Jika PIN yang dimasukkan oleh pengguna telah salah sebanyak 3x, pengguna akan terblokir dari ATM
-    do{
-        for(int j= 0; j < 3; j++) {
-            if(strcmp(insertUlangPIN, insertPin) == 0) {
-                menu();
-                exit(0);
-            }
-        }
-        printf("\n   PIN Atau BANK Salah! Batas input tersisa %d kali\n", ctr);
-        printf("\t\tMasukkan PIN Anda : ");
-
-        pinToAsterisk(insertUlangPIN);
-        ctr--;
-        if(ctr == 0) {
-            system("cls");
-            puts("||                  Maaf Kartu Anda Kami Blokir!               ||");
-            puts("|| Harap Hubungi Kantor BCA Terdekat Untuk Membuka Blokir Ini! ||");
-            return 0;
-        }
-    }while(ctr >= 0);
-
+    pinToAsterisk(userPin);
+   
+    checkPin(userPin);
 
     return 0;
 }
@@ -182,9 +185,11 @@ void readData() {
 
     while(!feof(fp)) {
         fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^#]#%f\n", &pengguna[dataTotal].nama, &pengguna[dataTotal].noRek, &pengguna[dataTotal].userPIN, &pengguna[dataTotal].namaBank, &pengguna[dataTotal].saldoUser);
+
         createNewNode(pengguna[dataTotal].nama, pengguna[dataTotal].noRek, pengguna[dataTotal].userPIN, pengguna[dataTotal].namaBank, pengguna[dataTotal].saldoUser);
         dataTotal++;
     }
+
     fclose(fp);
 }
 
@@ -196,11 +201,11 @@ void pinToAsterisk(char pin[]) {
     char ch;
     int i = 0;
 
-    /* 13 adalah nilai ASCII untuk ENTER */
+    // 13 = ASCII untuk ENTER key
     while((ch = getch()) != 13){
         if(i < 0)
             i = 0;
-        /* 8 adalah nilai ASCII untuk BACKSPACE */
+        // 8 = ASCII untuk BACKSPACE key
         if(ch == 8){
             printf("%c%c%c", '\b', 32, '\b');
             i--;
@@ -218,27 +223,34 @@ void pinToAsterisk(char pin[]) {
 * function checkPin berguna untuk membandingkan PIN yang diinput
 * yang bertujuan untuk memastikan bahwa pengguna yang login benar-benar dari bank BCA-KW
 */
-int checkPin() {
+int checkPin(char pinToCheck[]) {
     int ctr = 3;
 
+     // syntax do while dipakai untuk melakukan checking PIN yang diinsert oleh pengguna
+    // Jika PIN yang dimasukkan oleh pengguna telah salah sebanyak 3x, pengguna akan terblokir dari ATM
     do{
         for(index = 0; index <= dataTotal - 1; index++) {
-            if(strcmp(pengguna[index].userPIN, insertPin) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
+            if(strcmp(pengguna[index].userPIN, pinToCheck) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
+                menu();
+                return 0;
+            } else if (strcmp(insertPin, pinToCheck) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
                 menu();
                 return 0;
             }
         }
 
-        printf("\n   PIN Atau BANK Salah! Batas input tersisa %d kali\n\n", ctr);
-        printf("\t\tMasukkan PIN Anda : \n\t\t       ");
+        printf("\n   PIN Atau BANK Salah! Batas input tersisa %d kali\n", ctr);
+        printf("\n%16sMasukkan PIN Anda : \n%-22s", "", "");
 
-        pinToAsterisk(insertPin);
+        pinToAsterisk(pinToCheck);
         ctr--;
 
         if(ctr == 0) {
             system("cls");
-            puts("||                  Maaf Kartu Anda Kami Blokir!               ||");
-            puts("|| Harap Hubungi Kantor BCA Terdekat Untuk Membuka Blokir Ini! ||");
+            printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+            printf("+%20sMaaf Kartu Anda Kami Blokir!%-17s+\n", "", "");
+            printf("+%3sHarap Hubungi Kantor BCA Terdekat Untuk Membuka Blokir Ini!%-3s+\n", "", "");
+            printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
             return 0;
         }
     }while(ctr >= 0);
@@ -259,7 +271,7 @@ int transaksiLagi() {
 
     if(userInput[0] == 'Y' || userInput[0] == 'y') {
         system("cls");
-        login();
+        login(insertUlangPin);
     } else if (userInput[0] == 'N' || userInput[0] == 'n') {
         return 0;
     } else {
@@ -275,14 +287,13 @@ int showTransferMenu() {
     int userInput;
 
     system("cls");
-
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+\t               MENU               \t+\n");
+    printf("+%20sMENU%-23s+\n", "", "");
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+\t\t 1. Antar Bank \t\t\t+\n+\t\t 2. Antar Rekening \t\t+\n+\t\t 0. Keluar \t\t\t+\n");
+    printf("+%17s1. Antar Bank%-17s+\n+%17s2. Antar Rekening%-13s+\n+%17s0. Keluar%-21s+\n", "", "", "", "", "");
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\n\nPilihan : ");
-    scanf("%d", &userInput);
+    printf("\nPilihan : ");
+    scanf("%d", &userInput); fflush(stdin);
 
     while(userInput != 1 && userInput != 2 && userInput != 0) {
         printf("Input Tidak Diketahui!\nPilih Menu : ");
@@ -290,14 +301,14 @@ int showTransferMenu() {
     }
 
     switch(userInput) {
-    case 1:
-        antarBank();
-        break;
-    case 2:
-        antarRekening();
-        break;
-    case 0:
-        return 0;
+        case 1:
+            antarBank();
+            break;
+        case 2:
+            antarRekening();
+            break;
+        case 0:
+            return 0;
     }
 }
 
@@ -307,21 +318,23 @@ int showTransferMenu() {
 * konfirmasi dilakukan dengan menginput PIN baru sekali lagi
 * setelah itu proses gantiPin selesai
 */
+
+
 int gantiPin() {
     char pinLama[7], pinBaru[7], konfirmasiPIN[7];
 
     system("cls");
-    printf("\t\t Masukkan PIN Lama : \n\t\t\t");
+    printf("%17sMasukkan PIN Lama : \n%24s", "", "");
     pinToAsterisk(pinLama);
 
     FILE *fp = fopen("data.txt", "r+");
 
     if(strcmp(insertPin, pinLama) == 0){
 
-        printf("\n\t\t Masukkan PIN Baru : \n\t\t\t");
+        printf("\n%16s Masukkan PIN Baru : \n%24s", "", "");
         pinToAsterisk(pinBaru);
 
-        printf("\n\t\tKonfirmasi PIN Baru : \n\t\t\t");
+        printf("\n%16sKonfirmasi PIN Baru : \n%24s", "", "");
         pinToAsterisk(konfirmasiPIN);
 
         if(strcmp(pinBaru, konfirmasiPIN) == 0){
@@ -335,22 +348,29 @@ int gantiPin() {
                 node = node->next;
             }
 
-            printf("\n\t\tPIN Berhasil Diganti!\n\n");
+            printf("\n%16sPIN Berhasil Diganti!\n\n", "");
             return 0;
 
         } else {
-            printf("\n\n\t          PIN Tidak Cocok!");
-            printf("\n\t         Proses Dibatalkan!\n");
+            printf("\n\n%18sPIN Tidak Cocok!", "");
+            printf("\n%17sProses Dibatalkan!\n", "");
             return 0;
         }
 
     } else {
-        printf("\n\n\t   Pin yang Anda Masukkan Salah!\n");
+        printf("\n\n%11sPin yang Anda Masukkan Salah!\n", "");
         return 0;
     }
 
     fclose(fp);
 
+}
+
+void showSaldoUser(float saldo) {
+    system("cls");
+    printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    printf("+%60s+\n+%21sSisa Saldo : Rp %.f%-16s+\n+%-60s+\n", "", "", saldo, "", "");
+    printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
 }
 
 /*
@@ -365,10 +385,7 @@ void outputPenarikan(float jumlah) {
     while(node != NULL){
         if(strcmp(node->nama, pengguna[index].nama) == 0) {
             node->saldoUser -= jumlah;
-            system("cls");
-            printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-            printf("+\t\t\t\t\t\t\t     +\n+\t\t     Sisa Saldo : %.2f    \t     +\n+\t\t\t\t\t\t\t     +\n", node->saldoUser);
-            printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+            showSaldoUser(node->saldoUser);
         }
         fprintf(fp, "%s#%s#%s#%s#%.f\n", node->nama, node->noRek, node->userPIN, node->namaBank, node->saldoUser);
         node = node->next;
@@ -479,9 +496,11 @@ Node *insert(Node *node, int key){
 }
 
 void printInorder(Node *node){
+
   if(node == NULL) return;
   printInorder(node->left);
-  printf(">> Rp. %d0.000,00 ", node->key);
+  treeIndex++;
+  printf(">> %d) Rp. %d0.000,00 ", treeIndex, node->key);
   printf("\n");
   printInorder(node->right);
 }
@@ -504,8 +523,14 @@ int showMenuPenarikanTunai() {
     }
 
     system("cls");
+    printf("++++++++++++++++++++++++++++++++++\n");
+    printf("+     Pilih Jumlah Penarikan     +\n");
+    printf("++++++++++++++++++++++++++++++++++\n\n");
     printInorder(root);
-    printf("\nPilihan : "); scanf("%d", &userInput); fflush(stdin);
+    printf(">> 9) Transaksi lain\n");
+    printf(">> 0) Exit\n");
+    printf("\n+++++++++++++++++++++++++++++++++");
+    printf("\n\nPilihan : "); scanf("%d", &userInput); fflush(stdin);
 
     switch(userInput){
     case 1:
@@ -557,15 +582,15 @@ int antarBank(){
     fclose(fp);
 
     system("cls");
-    printf("====================================================================\n");
-    printf("\t\t             DAFTAR BANK           \n");
-    printf("====================================================================\n");
+    printf("=======================================================\n");
+    printf("%24sDAFTAR BANK\n", "");
+    printf("=======================================================\n");
     printf("\n");
     for(int j=0;j<counter;j++){
         if(j % 2 == 0){
-            printf(">>%-23s - %s   || ", kodeBank[j].nama, kodeBank[j].kode);
+            printf(">> %-18s - %3s || ", kodeBank[j].nama, kodeBank[j].kode);
         } else {
-            printf("   %s - %20s<<\n", kodeBank[j].kode, kodeBank[j].nama);
+            printf("%-3s - %15s <<\n", kodeBank[j].kode, kodeBank[j].nama);
         }
     }
 
@@ -736,6 +761,7 @@ void updateSaldo(float jumlah) {
 //function menu berguna untuk menerima pilihan menu dari pengguna
 int menu() {
     int userInput;
+
     system("cls");
     showMenu();
     scanf("%d", &userInput); fflush(stdin);
@@ -747,7 +773,7 @@ int menu() {
 
     switch(userInput){
     case 1:
-        printf("Saldo Rekening Anda : Rp %.2f\n", pengguna[index].saldoUser);
+        showSaldoUser(pengguna[index].saldoUser);
         transaksiLagi();
         break;
     case 2:
@@ -760,6 +786,6 @@ int menu() {
         gantiPin();
         break;
     case 0:
-        return (0);
+        return 0;
     }
 }
