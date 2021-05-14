@@ -11,6 +11,7 @@ typedef struct Menu{
 
     struct Menu *next;
 } Menu;
+
 /*
 * Struct data berfungsi untuk menyimpan data semua user yang dapat melakukan transaksi yang
 * sudah kami siapkan di file txt yang bernama data.txt
@@ -51,7 +52,6 @@ void push(Menu **stack, char angka[], char fitur[]){
     printf("+%20s%-27s+\n", angka, fitur);
 }
 
-
 /*
 * Struct rekeningData berfungsi untuk menyimpan data nomor rekening pengguna
 * beserta kode bank yang akan kami gunakan pada saat transaksi nantinya
@@ -61,8 +61,8 @@ struct rekeningData{
 }rekeningData[50];
 
 //GLOBAL VARIABLE
-char insertPin[7], insertUlangPin[7]; // digunakan untuk menampung PIN yang di insert oleh pengguna
-int dataTotal = 0, index = 0, counter = 0, treeIndex = 0; // menyimpan iterasi untuk mencari index dari pengguna
+char insertPin[7], insertUlangPin[7]; // * digunakan untuk menampung PIN yang di insert oleh pengguna
+int dataTotal = 0, index = 0, counter = 0, treeIndex = 0; // * menyimpan iterasi untuk mencari index dari pengguna
 
 int main() {
     head = tail = node = NULL;
@@ -80,9 +80,9 @@ int main() {
 * lalu di store ke file baru bernama sortedData. Function ini berjalan setiap program dijalankan
 */
 int sortingData() {
-    char strTempData[MAX_LEN]; // buat nampung data sementar
-    char **strData = NULL; // masukin semua string yang dibaca
-    int row = 0; // ini buat jumlah lines
+    char strTempData[MAX_LEN]; // * buat nampung data sementar
+    char **strData = NULL; // * masukin semua string yang dibaca
+    int row = 0; // * ini buat jumlah lines
 
     FILE *fpData = fopen("data.txt", "r");
     FILE *fpSorted = fopen("sortedData.txt", "w");
@@ -117,6 +117,10 @@ int sortingData() {
     fclose(fpSorted);
 }
 
+/*
+* function printSelamatDatang berguna sebagai reuseable function yang menampilkan
+* tampilan login agar dapat digunakan difunction lain
+*/
 void printSelamatDatang() {
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
     printf("+%10sSELAMAT DATANG DI ATM BCA-KW%-9s+\n", "", "");
@@ -153,8 +157,35 @@ int login(char userPin[]){
     printSelamatDatang();
 
     pinToAsterisk(userPin);
-   
-    checkPin(userPin);
+
+    int ctr = 3;
+
+    // ! BLOM FIX
+    // * syntax do while dipakai untuk melakukan checking PIN yang diinsert oleh pengguna
+    // * Jika PIN yang dimasukkan oleh pengguna telah salah sebanyak 3x, pengguna akan terblokir dari ATM
+    do{
+        for(index = 0; index <= dataTotal - 1; index++) {
+            if(strcmp(pengguna[index].userPIN, userPin) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
+                menu();
+                return 0;
+            }
+        }
+
+        printf("\n   PIN Atau BANK Salah! Batas input tersisa %d kali\n", ctr);
+        printf("\n%16sMasukkan PIN Anda : \n%-22s", "", "");
+
+        pinToAsterisk(userPin);
+        ctr--;
+
+        if(ctr == 0) {
+            system("cls");
+            printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+            printf("+%20sMaaf Kartu Anda Kami Blokir!%-17s+\n", "", "");
+            printf("+%3sHarap Hubungi Kantor BCA Terdekat Untuk Membuka Blokir Ini!%-3s+\n", "", "");
+            printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+            return 0;
+        }
+    }while(ctr >= 0);
 
     return 0;
 }
@@ -201,11 +232,11 @@ void pinToAsterisk(char pin[]) {
     char ch;
     int i = 0;
 
-    // 13 = ASCII untuk ENTER key
+    // * 13 = ASCII untuk ENTER key
     while((ch = getch()) != 13){
         if(i < 0)
             i = 0;
-        // 8 = ASCII untuk BACKSPACE key
+        // * 8 = ASCII untuk BACKSPACE key
         if(ch == 8){
             printf("%c%c%c", '\b', 32, '\b');
             i--;
@@ -217,44 +248,6 @@ void pinToAsterisk(char pin[]) {
     }
 
     pin[i] = '\0';
-}
-
-/*
-* function checkPin berguna untuk membandingkan PIN yang diinput
-* yang bertujuan untuk memastikan bahwa pengguna yang login benar-benar dari bank BCA-KW
-*/
-int checkPin(char pinToCheck[]) {
-    int ctr = 3;
-
-     // syntax do while dipakai untuk melakukan checking PIN yang diinsert oleh pengguna
-    // Jika PIN yang dimasukkan oleh pengguna telah salah sebanyak 3x, pengguna akan terblokir dari ATM
-    do{
-        for(index = 0; index <= dataTotal - 1; index++) {
-            if(strcmp(pengguna[index].userPIN, pinToCheck) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
-                menu();
-                return 0;
-            } else if (strcmp(insertPin, pinToCheck) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
-                menu();
-                return 0;
-            }
-        }
-
-        printf("\n   PIN Atau BANK Salah! Batas input tersisa %d kali\n", ctr);
-        printf("\n%16sMasukkan PIN Anda : \n%-22s", "", "");
-
-        pinToAsterisk(pinToCheck);
-        ctr--;
-
-        if(ctr == 0) {
-            system("cls");
-            printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-            printf("+%20sMaaf Kartu Anda Kami Blokir!%-17s+\n", "", "");
-            printf("+%3sHarap Hubungi Kantor BCA Terdekat Untuk Membuka Blokir Ini!%-3s+\n", "", "");
-            printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-            return 0;
-        }
-    }while(ctr >= 0);
-
 }
 
 /*
@@ -282,7 +275,7 @@ int transaksiLagi() {
     }
 }
 
-// function showTransferMenu berguna untuk menampilkan daftar transfer yang didukung oleh program ATM ini
+// * function showTransferMenu berguna untuk menampilkan daftar transfer yang didukung oleh program ATM ini
 int showTransferMenu() {
     int userInput;
 
@@ -318,8 +311,6 @@ int showTransferMenu() {
 * konfirmasi dilakukan dengan menginput PIN baru sekali lagi
 * setelah itu proses gantiPin selesai
 */
-
-
 int gantiPin() {
     char pinLama[7], pinBaru[7], konfirmasiPIN[7];
 
@@ -366,10 +357,11 @@ int gantiPin() {
 
 }
 
+// * function showSaldoUser merupakan reuseable function yang digunakan untuk menampilkan sisa saldo pengguna
 void showSaldoUser(float saldo) {
     system("cls");
     printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+%60s+\n+%21sSisa Saldo : Rp %.f%-16s+\n+%-60s+\n", "", "", saldo, "", "");
+    printf("+%60s+\n+%21sSisa Saldo : Rp %.f%-15s+\n+%-60s+\n", "", "", saldo, "", "");
     printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
 }
 
@@ -390,6 +382,8 @@ void outputPenarikan(float jumlah) {
         fprintf(fp, "%s#%s#%s#%s#%.f\n", node->nama, node->noRek, node->userPIN, node->namaBank, node->saldoUser);
         node = node->next;
     }
+
+    fclose(fp);
 }
 
 /*
@@ -565,6 +559,115 @@ int showMenuPenarikanTunai() {
     }
 }
 
+void confirmation(float Jumlahsaldo) {
+    char userInput[2];
+
+    printf("Apakah Anda Yakin? [Y/N] : ");
+    scanf("%s", &userInput); fflush(stdin);
+
+    if(userInput[0] == 'Y' || userInput[0] == 'y') {
+        outputPenarikan(Jumlahsaldo);
+        printf("\nTransaksi Berhasil!");
+        getch();
+    } else if (userInput[0] == 'N' || userInput[0] == 'n') {
+        return;
+    } else {
+        while(userInput[0] != 'N' || userInput[0] != 'n' || userInput[0] != 'Y' || userInput[0] != 'y') {
+            printf("Input Tidak Diketahui!\n");
+        }
+    }
+}
+
+/*
+* function lanjutTransaksi berguna untuk menerima input nomor rekening yang dituju oleh pengguna
+* dan menerima jumlah saldo yang ingin ditransfer.
+*/
+int lanjutTransaksi(char inputKode[]){
+    float saldoTransfer;
+    char inputRek[11];
+    int ctr = 0;
+
+    FILE *fpData = fopen("data.txt", "r");
+    FILE *fpRekeningData = fopen("rekeningData.txt", "r");
+
+    printf("Masukkan Nomor Rekening Tujuan : ");
+    scanf("%s", &inputRek); fflush(stdin);
+
+    while(!feof(fpData)) {
+        fscanf(fpData, "%[^#]#%[^#]#%[^#]#%[^#]#%f\n", &pengguna[ctr].nama, &pengguna[ctr].noRek, &pengguna[ctr].userPIN, &pengguna[ctr].namaBank, &pengguna[ctr].saldoUser);
+        fscanf(fpRekeningData, "%[^#]#%[^\n]", rekeningData[ctr].noRek, &rekeningData[ctr].kode);
+
+
+        if(strcmp(pengguna[ctr].noRek, inputRek) == 0 && strcmp(pengguna[ctr].namaBank, "BCA") != 0){
+            if(strcmp(rekeningData[ctr].kode, inputKode) == 0){
+                break;
+            }else{
+                printf("\nNomor Rekening yang Anda Tuju Tidak Terdaftar di Bank Tersebut!\n");
+                return 0;
+            }
+        }
+        ctr++;
+    }
+
+    if(strcmp(pengguna[ctr].noRek, inputRek) != 0){
+        printf("Nomor Rekening yang Dimasukkan Salah!\n");
+        return 0;
+    }
+
+    fclose(fpData);
+
+    printf("Masukkan Jumlah Uang yang Ingin Anda Transfer : ");
+    scanf("%f", &saldoTransfer); fflush(stdin);
+
+    if(saldoTransfer > pengguna[counter].saldoUser){
+        printf("Saldo tidak mencukupi\n");
+        return 0;
+    }
+
+    updateSaldo(saldoTransfer);
+
+    confirmation(saldoTransfer);
+}
+
+/*
+* function antarRekening berguna untuk melakukan transaksi transfer saldo kepada pengguna yang
+* berasal dari bank BCA
+*/
+void antarRekening(){
+    float saldoTransfer;
+    char inputRek[20];
+
+    FILE *fp = fopen("data.txt", "r");
+
+    printf("Masukkan Nomor Rekening Tujuan : ");
+    scanf("%s", &inputRek); fflush(stdin);
+
+    while(!feof(fp)) {
+
+        fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^#]#%f\n", &pengguna[counter].nama, &pengguna[counter].noRek, &pengguna[counter].userPIN, &pengguna[counter].namaBank, &pengguna[counter].saldoUser);
+
+        if(strcmp(pengguna[counter].noRek, inputRek) == 0 && strcmp(pengguna[counter].namaBank, "BCA") == 0){
+            break;
+        }
+
+        counter++;
+
+    }
+
+    fclose(fp);
+
+    if(strcmp(pengguna[counter].noRek, inputRek) != 0 && strcmp(pengguna[counter].namaBank, "BCA") != 0){
+        printf("Nomor Rekening yang Anda Masukkan Tidak Terdaftar!\n");
+        return;
+    }
+
+    printf("Masukkan Jumlah Uang yang Ingin Anda Transfer : ");
+    scanf("%f", &saldoTransfer); fflush(stdin);
+
+    confirmation(saldoTransfer);
+
+}
+
 /*
 * function antarBank berguna untuk menampilkan daftar bank yang dapat dituju
 * dan menerima input kodeBank
@@ -606,7 +709,7 @@ int antarBank(){
     for(int j=0;j<counter;j++){
         if(strcmp(kodeBank[j].kode, inputKode) == 0){
             lanjutTransaksi(inputKode);
-            return;
+            return 0;
         }
     }
 
@@ -614,135 +717,7 @@ int antarBank(){
     goto label2;
 }
 
-/*
-* function lanjutTransaksi berguna untuk menerima input nomor rekening yang dituju oleh pengguna
-* dan menerima jumlah saldo yang ingin ditransfer.
-*/
-void lanjutTransaksi(inputKode){
-    float saldoTransfer;
-    char inputRek[11], userInput[2];
-    int ctr = 0;
-
-    FILE *fp = fopen("data.txt", "r");
-    FILE *fp2 = fopen("rekeningData.txt", "r");
-
-    printf("Masukkan Nomor Rekening Tujuan : ");
-    scanf("%s", &inputRek); fflush(stdin);
-
-    while(!feof(fp)) {
-        fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^#]#%f\n", &pengguna[ctr].nama, &pengguna[ctr].noRek, &pengguna[ctr].userPIN, &pengguna[ctr].namaBank, &pengguna[ctr].saldoUser);
-        fscanf(fp2, "%[^#]#%[^\n]", rekeningData[ctr].noRek, &rekeningData[ctr].kode);
-
-
-        if(strcmp(pengguna[ctr].noRek, inputRek) == 0 && strcmp(pengguna[ctr].namaBank, "BCA") != 0){
-            if(strcmp(rekeningData[ctr].kode, inputKode) == 0){
-                break;
-            }else{
-                printf("\nNomor Rekening yang Anda Tuju Tidak Terdaftar di Bank Tersebut!\n");
-                return;
-            }
-        }
-        ctr++;
-    }
-
-    if(strcmp(pengguna[ctr].noRek, inputRek) != 0){
-        printf("Nomor Rekening yang Dimasukkan Salah!\n");
-        return;
-    }
-
-    fclose(fp);
-
-    printf("Masukkan Jumlah Uang yang Ingin Anda Transfer : ");
-    scanf("%f", &saldoTransfer); fflush(stdin);
-
-    if(saldoTransfer > pengguna[counter].saldoUser){
-        printf("Saldo tidak mencukupi\n");
-        return 0;
-    }
-
-    fp = fopen("data.txt", "r+");
-
-    node = head;
-
-    while(node != NULL){
-        if(strcmp(node->nama, pengguna[ctr].nama) == 0) {
-            node->saldoUser += saldoTransfer;
-        }
-        fprintf(fp, "%s#%s#%s#%s#%.f\n", node->nama, node->noRek, node->userPIN, node->namaBank, node->saldoUser);
-        node = node->next;
-    }
-
-    fclose(fp);
-
-
-    printf("Apakah Anda Yakin? [Y/N] : ");
-    scanf("%s", &userInput); fflush(stdin);
-
-    if(userInput[0] == 'Y' || userInput[0] == 'y') {
-        outputPenarikan(saldoTransfer);
-        printf("\nTransaksi Berhasil!");
-        getch();
-    } else if (userInput[0] == 'N' || userInput[0] == 'n') {
-        return;
-    } else {
-        while(userInput[0] != 'N' || userInput[0] != 'n' || userInput[0] != 'Y' || userInput[0] != 'y') {
-            printf("Input Tidak Diketahui!\n");
-        }
-    }
-}
-
-/*
-* function antarRekening berguna untuk melakukan transaksi transfer saldo kepada pengguna yang
-* berasal dari bank BCA
-*/
-void antarRekening(){
-    float saldoTransfer;
-    char inputRek[20], userInput[2];
-
-    FILE *fp = fopen("data.txt", "r");
-
-    printf("Masukkan Nomor Rekening Tujuan : ");
-    scanf("%s", &inputRek); fflush(stdin);
-
-    while(!feof(fp)) {
-
-        fscanf(fp, "%[^#]#%[^#]#%[^#]#%[^#]#%f\n", &pengguna[counter].nama, &pengguna[counter].noRek, &pengguna[counter].userPIN, &pengguna[counter].namaBank, &pengguna[counter].saldoUser);
-
-        if(strcmp(pengguna[counter].noRek, inputRek) == 0 && strcmp(pengguna[counter].namaBank, "BCA") == 0){
-            break;
-        }
-
-        counter++;
-
-    }
-
-    fclose(fp);
-
-    if(strcmp(pengguna[counter].noRek, inputRek) != 0 && strcmp(pengguna[counter].namaBank, "BCA") != 0){
-        printf("Nomor Rekening yang Anda Masukkan Tidak Terdaftar!\n");
-        return;
-    }
-
-    printf("Masukkan Jumlah Uang yang Ingin Anda Transfer : ");
-    scanf("%f", &saldoTransfer); fflush(stdin);
-    printf("Apakah Anda Yakin? [Y/N] : ");
-    scanf("%s", &userInput); fflush(stdin);
-
-    if(userInput[0] == 'Y' || userInput[0] == 'y') {
-        outputPenarikan(saldoTransfer);
-        updateSaldo(saldoTransfer);
-        printf("\nTransaksi Berhasil!");
-        getch();
-    } else if (userInput[0] == 'N' || userInput[0] == 'n') {
-        return;
-    } else {
-        while(userInput[0] != 'N' || userInput[0] != 'n' || userInput[0] != 'Y' || userInput[0] != 'y') {
-            printf("Input Tidak Diketahui!\n");
-        }
-    }
-}
-
-//function updateSaldo berguna untuk mengganti saldo sebelum transaksi dengan saldo setelah melakukan transaksi
+// * function updateSaldo berguna untuk mengganti saldo sebelum transaksi dengan saldo setelah melakukan transaksi
 void updateSaldo(float jumlah) {
     FILE *fp = fopen("data.txt", "r+");
 
@@ -755,10 +730,12 @@ void updateSaldo(float jumlah) {
         fprintf(fp, "%s#%s#%s#%s#%.f\n", node->nama, node->noRek, node->userPIN, node->namaBank, node->saldoUser);
         node = node->next;
     }
+
+    fclose(fp);
 }
 
 
-//function menu berguna untuk menerima pilihan menu dari pengguna
+// * function menu berguna untuk menerima pilihan menu dari pengguna
 int menu() {
     int userInput;
 
