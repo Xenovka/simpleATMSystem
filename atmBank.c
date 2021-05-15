@@ -3,10 +3,9 @@
 #include <conio.h>
 #include <string.h>
 
-#include "PrintFunction.h"
-#include "Sorting.h"
-#include "AVLTree.h"
-#include "AntarBank.h"
+#include "./HeaderFile/PrintFunction.h"
+#include "./HeaderFile/Sorting.h"
+#include "./HeaderFile/AVLTree.h"
 
 /*
 * Struct data berfungsi untuk menyimpan data semua user yang dapat melakukan transaksi yang
