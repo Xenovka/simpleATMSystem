@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <malloc.h>
 
+#ifndef _AVLTREE_
+#define _AVLTREE_
+
 int treeIndex = 0;
 
 typedef struct Node {
@@ -102,3 +105,6 @@ void printInorder(Node *node){
   printInorder(node->right);
 }
 // Akhir dari pengimplementasian AVL Tree
+
+
+#endif

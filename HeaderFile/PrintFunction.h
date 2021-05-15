@@ -1,5 +1,10 @@
 #include <stdio.h>
 
+#ifndef _PRINTFUNC_
+#define _PRINTFUNC_
+
+#include "AVLTree.h"
+
 /*
 * function showMenu berfungsi untuk menampilkan tampilan awal program yang mana
 * berisi daftar menu yang tersedia di program ATM inin
@@ -18,6 +23,31 @@ void showMenu() {
 
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
     printf("\nPilihan : ");
+}
+
+/*
+* function showMenuPenarikanTunai berguna untuk menampilkan daftar nominal penarikan tunai
+* yang disediakan secara default oleh program ATM ini
+*/
+int showMenuPenarikanTunai() {
+    Node *root = NULL;
+
+    int saldoPenarikan[] = {250, 5, 50, 150, 10, 100};
+
+    for(int i=0; i<6; i++) {
+        root = insert(root, saldoPenarikan[i]);
+    }
+
+    system("cls");
+    printf("++++++++++++++++++++++++++++++++++\n");
+    printf("+     Pilih Jumlah Penarikan     +\n");
+    printf("++++++++++++++++++++++++++++++++++\n\n");
+    printInorder(root);
+    printf(">> 9) Transaksi lain\n");
+    printf(">> 0) Exit\n");
+    printf("\n+++++++++++++++++++++++++++++++++");
+    printf("\n\nPilihan : ");
+    scanPenarikan();
 }
 
 /*
@@ -48,3 +78,5 @@ void showTransferMenu() {
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
     printf("\nPilihan : ");
 }
+
+#endif

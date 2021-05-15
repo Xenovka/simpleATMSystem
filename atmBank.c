@@ -318,26 +318,9 @@ void transaksiLain() {
 * function showMenuPenarikanTunai berguna untuk menampilkan daftar nominal penarikan tunai
 * yang disediakan secara default oleh program ATM ini
 */
-int showMenuPenarikanTunai() {
+void scanPenarikan(){
     int userInput;
-
-    Node *root = NULL;
-
-    int saldoPenarikan[] = {250, 5, 50, 150, 10, 100};
-
-    for(int i=0; i<6; i++) {
-        root = insert(root, saldoPenarikan[i]);
-    }
-
-    system("cls");
-    printf("++++++++++++++++++++++++++++++++++\n");
-    printf("+     Pilih Jumlah Penarikan     +\n");
-    printf("++++++++++++++++++++++++++++++++++\n\n");
-    printInorder(root);
-    printf(">> 9) Transaksi lain\n");
-    printf(">> 0) Exit\n");
-    printf("\n+++++++++++++++++++++++++++++++++");
-    printf("\n\nPilihan : "); scanf("%d", &userInput); fflush(stdin);
+    scanf("%d", &userInput); fflush(stdin);
 
     switch(userInput){
     case 1:
