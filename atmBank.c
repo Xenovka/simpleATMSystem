@@ -3,14 +3,10 @@
 #include <conio.h>
 #include <string.h>
 
-#define MAX_LEN 100
-
-typedef struct Menu{
-    char angka[4];
-    char fitur[30];
-
-    struct Menu *next;
-} Menu;
+#include "PrintFunction.h"
+#include "Sorting.h"
+#include "AVLTree.h"
+#include "AntarBank.h"
 
 /*
 * Struct data berfungsi untuk menyimpan data semua user yang dapat melakukan transaksi yang
@@ -30,16 +26,19 @@ struct dataBank {
     char nama[100], kode[10];
 } kodeBank[50];
 
-typedef struct Node {
-  int key, height;
-  struct Node *left, *right;
-} Node;
+typedef struct Menu{
+    char angka[4];
+    char fitur[30];
+
+    struct Menu *next;
+} Menu;
 
 int isEmpty(Menu *stack){
     if(stack == NULL)
         return 1;
     return 0;
 }
+
 
 void push(Menu **stack, char angka[], char fitur[]){
     Menu *data = (Menu*) malloc(sizeof(Menu));
@@ -62,7 +61,7 @@ struct rekeningData{
 
 //GLOBAL VARIABLE
 char insertPin[7], insertUlangPin[7]; // * digunakan untuk menampung PIN yang di insert oleh pengguna
-int dataTotal = 0, index = 0, counter = 0, treeIndex = 0; // * menyimpan iterasi untuk mencari index dari pengguna
+int dataTotal = 0, index = 0, counter = 0;// * menyimpan iterasi untuk mencari index dari pengguna
 
 int main() {
     head = tail = node = NULL;
@@ -76,85 +75,12 @@ int main() {
 }
 
 /*
-* function sortingData ini digunakan untuk sort data yang ada di data.txt by name
-* lalu di store ke file baru bernama sortedData. Function ini berjalan setiap program dijalankan
-*/
-int sortingData() {
-    char strTempData[MAX_LEN]; // * buat nampung data sementar
-    char **strData = NULL; // * masukin semua string yang dibaca
-    int row = 0; // * ini buat jumlah lines
-
-    FILE *fpData = fopen("data.txt", "r");
-    FILE *fpSorted = fopen("sortedData.txt", "w");
-
-    while(fgets(strTempData, MAX_LEN, fpData) != NULL) {
-        if(strchr(strTempData,'\n')) strTempData[strlen(strTempData)-1] = '\0';
-
-        strData = (char**)realloc(strData, sizeof(char**)*(row+1));
-        strData[row] = (char*)calloc(MAX_LEN,sizeof(char));
-        strcpy(strData[row], strTempData);
-        row++;
-    }
-
-    for(int i= 0; i < (row - 1); ++i) {
-        for(int j = 0; j < ( row - i - 1); ++j) {
-            if(strcmp(strData[j], strData[j+1]) > 0) {
-                strcpy(strTempData, strData[j]);
-                strcpy(strData[j], strData[j+1]);
-                strcpy(strData[j+1], strTempData);
-            }
-        }
-    }
-
-    for(int i = 0; i < row; i++)
-        fprintf(fpSorted,"%s\n",strData[i]);
-
-    for(int i = 0; i < row; i++)
-        free(strData[i]);
-
-    free(strData);
-    fclose(fpData);
-    fclose(fpSorted);
-}
-
-/*
-* function printSelamatDatang berguna sebagai reuseable function yang menampilkan
-* tampilan login agar dapat digunakan difunction lain
-*/
-void printSelamatDatang() {
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+%10sSELAMAT DATANG DI ATM BCA-KW%-9s+\n", "", "");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\n%16sMasukkan PIN Anda :\n%-22s", "", "");
-}
-
-/*
-* function showMenu berfungsi untuk menampilkan tampilan awal program yang mana
-* berisi daftar menu yang tersedia di program ATM inin
-*/
-void showMenu() {
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+%20sMENU%-23s+\n", "", "");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    Menu *stackmenu;
-    stackmenu = NULL;
-    push(&stackmenu, "1. ", "Info Saldo");
-    push(&stackmenu, "2. ", "Transfer");
-    push(&stackmenu, "3. ", "Penarikan Tunai");
-    push(&stackmenu, "4. ", "Ganti PIN");
-    push(&stackmenu, "0. ", "Keluar");
-
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\nPilihan : ");
-}
-
-/*
 * function login berguna sesuai dengan nama function ini sendiri, yaitu meminta pengguna
 * untuk login menggunakan PIN nya.
 */
 int login(char userPin[]){
 
-    printSelamatDatang();
+    showWelcome();
 
     pinToAsterisk(userPin);
 
@@ -276,16 +202,10 @@ int transaksiLagi() {
 }
 
 // * function showTransferMenu berguna untuk menampilkan daftar transfer yang didukung oleh program ATM ini
-int showTransferMenu() {
+int transferMenu() {
     int userInput;
 
-    system("cls");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+%20sMENU%-23s+\n", "", "");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+%17s1. Antar Bank%-17s+\n+%17s2. Antar Rekening%-13s+\n+%17s0. Keluar%-21s+\n", "", "", "", "", "");
-    printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\nPilihan : ");
+    showTransferMenu();
     scanf("%d", &userInput); fflush(stdin);
 
     while(userInput != 1 && userInput != 2 && userInput != 0) {
@@ -357,14 +277,6 @@ int gantiPin() {
 
 }
 
-// * function showSaldoUser merupakan reuseable function yang digunakan untuk menampilkan sisa saldo pengguna
-void showSaldoUser(float saldo) {
-    system("cls");
-    printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("+%60s+\n+%21sSisa Saldo : Rp %.f%-15s+\n+%-60s+\n", "", "", saldo, "", "");
-    printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
-}
-
 /*
 * function outputPenarikan berguna untuk mengurangi saldo pengguna sesuai dengan jumlah saldo yang
 * dipilih oleh pengguna, setelah itu menampilkan sisa saldo yang dimiliki pengguna
@@ -402,104 +314,6 @@ void transaksiLain() {
     printf("\n");
     transaksiLagi();
 }
-
-
-// Pengimplementasian AVL Tree
-int height(struct Node *N){
-  if(N == NULL)
-    return 0;
-  return N->height;
-}
-
-int max(int a, int b){
-  return (a > b) ? a : b;
-}
-
-Node *newNode(int item){
-  Node *temp = (Node *)malloc(sizeof(Node));
-  temp->key = item;
-  temp->left = temp->right = NULL;
-  temp->height = 1;
-  return temp;
-}
-
-Node *leftRotate(Node *x){
-  Node *y = x->right;
-  Node *T2 = y->left;
-
-  y->left = x;
-  x->right = T2;
-
-  x->height = max(height(x->left), height(x->right))+1;
-  y->height = max(height(y->left), height(y->right))+1;
-
-  return y;
-}
-
-Node *rightRotate(Node *y){
-  Node *x = y->left;
-  Node *T2 = x->right;
-
-  x->right = y;
-  y->left = T2;
-
-  y->height = max(height(y->left), height(y->right))+1;
-  x->height = max(height(x->left), height(x->right))+1;
-
-  return x;
-}
-
-int getBalance(Node *N){
-  if(N == NULL)
-    return 0;
-  return height(N->left) - height(N->right);
-}
-
-Node *insert(Node *node, int key){
-  if(node == NULL) return(newNode(key));
-
-  if(key < node->key)
-    node->left = insert(node->left, key);
-  else if(key > node->key)
-    node->right = insert(node->right, key);
-  else
-    return node;
-
-  node->height = 1 + max(height(node->left),
-                         height(node->right));
-
-  int balance = getBalance(node);
-
-  if(balance > 1 && key < node->left->key)
-    return rightRotate(node);
-
-  if(balance < -1 && key > node->right->key)
-    return leftRotate(node);
-
-  if(balance > 1 && key > node->left->key){
-    node->left = leftRotate(node->left);
-    return rightRotate(node);
-  }
-
-  if(balance < -1 && key < node->right->key){
-    node->right = rightRotate(node->right);
-    return leftRotate(node);
-  }
-
-  return node;
-}
-
-void printInorder(Node *node){
-
-  if(node == NULL) return;
-  printInorder(node->left);
-  treeIndex++;
-  printf(">> %d) Rp. %d0.000,00 ", treeIndex, node->key);
-  printf("\n");
-  printInorder(node->right);
-}
-// Akhir dari pengimplementasian AVL Tree
-
 
 /*
 * function showMenuPenarikanTunai berguna untuk menampilkan daftar nominal penarikan tunai
@@ -576,6 +390,55 @@ void confirmation(float Jumlahsaldo) {
             printf("Input Tidak Diketahui!\n");
         }
     }
+}
+
+/*
+* function antarBank berguna untuk menampilkan daftar bank yang dapat dituju
+* dan menerima input kodeBank
+*/
+int antarBank(){
+    int counter = 0;
+    char inputKode[10], inputRekening[15];
+    FILE *fp = fopen("kodeBank.txt", "r");
+
+    while(!feof(fp)) {
+        fscanf(fp, "%[^#]#%[^\n]\n", &kodeBank[counter].nama, &kodeBank[counter].kode);
+        counter++;
+    }
+
+    fclose(fp);
+
+    system("cls");
+    printf("=======================================================\n");
+    printf("%24sDAFTAR BANK\n", "");
+    printf("=======================================================\n");
+    printf("\n");
+    for(int j=0;j<counter;j++){
+        if(j % 2 == 0){
+            printf(">> %-18s - %3s || ", kodeBank[j].nama, kodeBank[j].kode);
+        } else {
+            printf("%-3s - %15s <<\n", kodeBank[j].kode, kodeBank[j].nama);
+        }
+    }
+
+    label2:
+    printf("\nInput Kode Bank yang Ingin Dituju : ");
+    scanf("%s", &inputKode); fflush(stdin);
+
+    if(strcmp(inputKode, "014") == 0){
+        printf("Silahkan Gunakan Transfer Antar Rekening.\n");
+        return 0;
+    }
+
+    for(int j=0;j<counter;j++){
+        if(strcmp(kodeBank[j].kode, inputKode) == 0){
+            lanjutTransaksi(inputKode);
+            return 0;
+        }
+    }
+
+    printf("Kode Bank yang Dimasukkan Salah!\n");
+    goto label2;
 }
 
 /*
@@ -668,55 +531,6 @@ void antarRekening(){
 
 }
 
-/*
-* function antarBank berguna untuk menampilkan daftar bank yang dapat dituju
-* dan menerima input kodeBank
-*/
-int antarBank(){
-    int counter = 0;
-    char inputKode[10], inputRekening[15];
-    FILE *fp = fopen("kodeBank.txt", "r");
-
-    while(!feof(fp)) {
-        fscanf(fp, "%[^#]#%[^\n]\n", &kodeBank[counter].nama, &kodeBank[counter].kode);
-        counter++;
-    }
-
-    fclose(fp);
-
-    system("cls");
-    printf("=======================================================\n");
-    printf("%24sDAFTAR BANK\n", "");
-    printf("=======================================================\n");
-    printf("\n");
-    for(int j=0;j<counter;j++){
-        if(j % 2 == 0){
-            printf(">> %-18s - %3s || ", kodeBank[j].nama, kodeBank[j].kode);
-        } else {
-            printf("%-3s - %15s <<\n", kodeBank[j].kode, kodeBank[j].nama);
-        }
-    }
-
-    label2:
-    printf("\nInput Kode Bank yang Ingin Dituju : ");
-    scanf("%s", &inputKode); fflush(stdin);
-
-    if(strcmp(inputKode, "014") == 0){
-        printf("Silahkan Gunakan Transfer Antar Rekening.\n");
-        return 0;
-    }
-
-    for(int j=0;j<counter;j++){
-        if(strcmp(kodeBank[j].kode, inputKode) == 0){
-            lanjutTransaksi(inputKode);
-            return 0;
-        }
-    }
-
-    printf("Kode Bank yang Dimasukkan Salah!\n");
-    goto label2;
-}
-
 // * function updateSaldo berguna untuk mengganti saldo sebelum transaksi dengan saldo setelah melakukan transaksi
 void updateSaldo(float jumlah) {
     FILE *fp = fopen("data.txt", "r+");
@@ -754,7 +568,7 @@ int menu() {
         transaksiLagi();
         break;
     case 2:
-        showTransferMenu();
+        transferMenu();
         break;
     case 3:
         showMenuPenarikanTunai();
