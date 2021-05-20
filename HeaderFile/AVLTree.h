@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <malloc.h>
 
-#ifndef _AVLTREE_
-#define _AVLTREE_
-
-int treeIndex = 0;
+int treeIndex = 1;
 
 typedef struct Node {
   int key, height;
@@ -97,14 +94,14 @@ Node *insert(Node *node, int key){
 }
 
 void printInorder(Node *node){
+
   if(node == NULL) return;
   printInorder(node->left);
+
+  printf("+%7s%d) Rp. %d0.000,00", "", treeIndex, node->key);
+  printf("\t +\n", "");
   treeIndex++;
-  printf(">> %d) Rp. %d0.000,00 ", treeIndex, node->key);
-  printf("\n");
   printInorder(node->right);
 }
+
 // Akhir dari pengimplementasian AVL Tree
-
-
-#endif
