@@ -3,7 +3,7 @@
 
 /*
 * function showMenu berfungsi untuk menampilkan tampilan awal program yang mana
-* berisi daftar menu yang tersedia di program ATM inin
+* berisi daftar menu yang tersedia di program ATM ini
 */
 void showMenu() {
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
@@ -29,7 +29,8 @@ void showWelcome() {
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
     printf("+%10sSELAMAT DATANG DI ATM BCA-KW%-9s+\n", "", "");
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf("\n%16sMasukkan PIN Anda :\n%-22s", "", "");
+    printf("\n%10sMasukkan Nomor Rekening Anda :\n%-20s", "", "");
+    
 }
 
 // * Function showSaldoUser merupakan reuseable function yang digunakan untuk menampilkan sisa saldo pengguna

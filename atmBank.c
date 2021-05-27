@@ -266,9 +266,27 @@ int transferMenu() {
 * untuk login menggunakan PIN-nya.
 */
 int login(char userPin[]){
+    char inputRek[20];
+    int isValid = 0;
 
     showWelcome();
 
+    scanf("%s", &inputRek); fflush(stdin);
+
+    do {
+        for(index = 0; index <= dataTotal - 1; index++) {
+            if(strcmp(pengguna[index].noRek, inputRek) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
+                goto lanjut;
+            } 
+        } 
+
+        isValid = 1;
+        printf("\n%10sNomor Rekening Tidak Diketahui!\n", "");
+        return 0;
+    } while (isValid == 0);
+
+    lanjut:
+    printf("\n%16sMasukkan PIN Anda :\n%-22s", "", "");
     pinToAsterisk(userPin);
 
     int ctr = 3;
@@ -279,7 +297,7 @@ int login(char userPin[]){
         // * Jika sebelumnya belum melakukan transaksi, maka akan masuk ke dalam function 'if'.
         if (!flag){
             for(index = 0; index <= dataTotal - 1; index++) {
-                if(strcmp(pengguna[index].userPIN, userPin) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
+                if(strcmp(pengguna[index].userPIN, userPin) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0 && strcmp(pengguna[index].noRek, inputRek) == 0) {
                     flag = 1;
                     menu();
                     return 0;
