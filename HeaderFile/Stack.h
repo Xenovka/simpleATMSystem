@@ -4,7 +4,7 @@ int isEmpty(Menu *stack){
     return 0;
 }
 
-
+// * function ini berfungsi untuk menampilkan menu utama pada program bank ini
 void push(Menu **stack, char angka[], char fitur[]){
     Menu *data = (Menu*) malloc(sizeof(Menu));
     strcpy(data->angka, angka);

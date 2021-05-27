@@ -20,7 +20,7 @@ int main() {
     return 0;
 }
 
-// Function antarRekening berguna untuk melakukan transaksi transfer saldo kepada pengguna yang berasal dari bank BCA
+// * Function antarRekening berguna untuk melakukan transaksi transfer saldo kepada pengguna yang berasal dari bank BCA
 void antarRekening(){
 
     char inputRek[20];
@@ -141,7 +141,7 @@ int lanjutTransaksi(char inputKode[]){
     fclose(fpData);
 }
 
-// Penerapan Linked List berdasarkan Struct data. Data dari Struct akan dimasukkan ke dalam Linked List.
+// * Penerapan Linked List berdasarkan Struct data. Data dari Struct akan dimasukkan ke dalam Linked List.
 void createNewNode(char nama[], char noRek[], char userPIN[], char namaBank[], float saldoUser) {
     node = (struct data*) malloc(sizeof(struct data));
     node->next = NULL;
@@ -223,7 +223,7 @@ int gantiPin() {
 
 }
 
-// Function readData berfungsi untuk membaca seluruh data yang ada di file "data.txt"
+// * Function readData berfungsi untuk membaca seluruh data yang ada di file "data.txt"
 void readData() {
     FILE *fp = fopen("data.txt", "r");
 
@@ -237,7 +237,7 @@ void readData() {
     fclose(fp);
 }
 
-// Function showTransferMenu berguna untuk menampilkan daftar transfer yang didukung oleh program ATM ini
+// * Function transferMenu berguna untuk menampilkan daftar transfer yang didukung oleh program ATM ini
 int transferMenu() {
     int userInput;
 
@@ -273,10 +273,10 @@ int login(char userPin[]){
 
     int ctr = 3;
 
-    // Syntax do while dipakai untuk melakukan checking PIN yang diinsert oleh pengguna
-    // Jika PIN yang dimasukkan oleh pengguna telah salah sebanyak 3x, pengguna akan terblokir dari ATM
+    // * Syntax do while dipakai untuk melakukan checking PIN yang diinsert oleh pengguna
+    // * Jika PIN yang dimasukkan oleh pengguna telah salah sebanyak 3x, pengguna akan terblokir dari ATM
     do {
-        // Jika sebelumnya belum melakukan transaksi, maka akan masuk ke dalam function 'if'.
+        // * Jika sebelumnya belum melakukan transaksi, maka akan masuk ke dalam function 'if'.
         if (!flag){
             for(index = 0; index <= dataTotal - 1; index++) {
                 if(strcmp(pengguna[index].userPIN, userPin) == 0 && strcmp(pengguna[index].namaBank, "BCA") == 0) {
@@ -287,7 +287,7 @@ int login(char userPin[]){
             }
         }
 
-        // Jika sudah pernah melakukan transaksi dan akan melakukan transaksi lagi, maka akan masuk ke dalam fungsi 'else'.
+        // * Jika sudah pernah melakukan transaksi dan akan melakukan transaksi lagi, maka akan masuk ke dalam fungsi 'else'.
         else {
             if(strcmp(insertPin, userPin) == 0){
                 menu();
@@ -331,6 +331,7 @@ void transaksiLain() {
 
 }
 
+// * function scanPenarikan berguna untuk melakukan update setelah pengguna melakukan penarikan tunai sesuai dengan pilihan
 void scanPenarikan(){
     int userInput;
     scanf("%d", &userInput);
@@ -363,7 +364,7 @@ void scanPenarikan(){
     }
 }
 
-// Function menu berguna untuk menerima pilihan menu dari pengguna
+// * Function menu berguna untuk menerima pilihan menu dari pengguna
 int menu() {
     int userInput;
 

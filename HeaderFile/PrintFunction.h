@@ -32,7 +32,7 @@ void showWelcome() {
     printf("\n%16sMasukkan PIN Anda :\n%-22s", "", "");
 }
 
-// Function showSaldoUser merupakan reuseable function yang digunakan untuk menampilkan sisa saldo pengguna
+// * Function showSaldoUser merupakan reuseable function yang digunakan untuk menampilkan sisa saldo pengguna
 void showSaldoUser(float saldo) {
     system("cls");
     printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
@@ -40,7 +40,7 @@ void showSaldoUser(float saldo) {
     printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
 }
 
-// Function showTransferMenu berguna untuk menampilkan daftar transfer yang didukung oleh program ATM ini
+// * Function showTransferMenu berguna untuk menampilkan daftar transfer yang didukung oleh program ATM ini
 void showTransferMenu() {
   system("cls");
     printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");

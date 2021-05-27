@@ -1,9 +1,9 @@
-//#ifndef _VARANDSTRUCT_
-//#define _VARANDSTRUCT_
+#ifndef _VARANDSTRUCT_
+#define _VARANDSTRUCT_
 
 
 
-//GLOBAL VARIABLE
+// * GLOBAL VARIABLE
 char insertPin[7], insertUlangPin[7]; // * digunakan untuk menampung PIN yang di insert oleh pengguna
 int dataTotal = 0, index = 0, counter = 0, flag = 0; // * menyimpan iterasi untuk mencari index dari pengguna
 
@@ -45,4 +45,4 @@ struct dataBank {
 } kodeBank[50];
 
 
-//#endif
+#endif

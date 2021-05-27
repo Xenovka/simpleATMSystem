@@ -8,7 +8,7 @@ typedef struct Node {
   struct Node *left, *right;
 } Node;
 
-// Pengimplementasian AVL Tree
+// * Pengimplementasian AVL Tree
 int height(struct Node *N){
   if(N == NULL)
     return 0;
@@ -93,6 +93,7 @@ Node *insert(Node *node, int key){
   return node;
 }
 
+// * function ini berguna untuk menampilkan pilihan saldo yang dapat ditarik secara In-order 
 void printInorder(Node *node){
 
   if(node == NULL) return;
@@ -103,5 +104,3 @@ void printInorder(Node *node){
   treeIndex++;
   printInorder(node->right);
 }
-
-// Akhir dari pengimplementasian AVL Tree

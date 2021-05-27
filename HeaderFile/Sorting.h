@@ -9,7 +9,7 @@
 * lalu di store ke file baru bernama sortedData. Function ini berjalan setiap program dijalankan
 */
 int sortingData() {
-    char strTempData[MAX_LEN]; // * buat nampung data sementar
+    char strTempData[MAX_LEN]; // * buat nampung data sementara
     char **strData = NULL; // * masukin semua string yang dibaca
     int row = 0; // * ini buat jumlah lines
 

@@ -1,5 +1,3 @@
-//#include "GlobalVariableAndStruct.h"
-
 /*
 * Function ini berfungsi sesuai dengan penamaannya, yaitu untuk mengubah PIN yang
 * diinput oleh user menjadi bintang/asterisk (*) seperti layaknya di ATM pada umumnya.
@@ -80,7 +78,7 @@ void outputPenarikan(float jumlah) {
     fclose(fp);
 }
 
-// Function updateSaldo berguna untuk mengganti saldo sebelum transaksi dengan saldo setelah melakukan transaksi
+// * Function updateSaldo berguna untuk mengganti saldo sebelum transaksi dengan saldo setelah melakukan transaksi
 void updateSaldo(float jumlah) {
     FILE *fp = fopen("data.txt", "r+");
 
@@ -97,7 +95,7 @@ void updateSaldo(float jumlah) {
     fclose(fp);
 }
 
-// Function confirmation berguna untuk mengkonfirmasi kembali jumlah saldo yang ingin ditransfer
+// * Function confirmation berguna untuk mengkonfirmasi kembali jumlah saldo yang ingin ditransfer
 void confirmation(float Jumlahsaldo) {
     char userInput[2];
 
@@ -117,6 +115,7 @@ void confirmation(float Jumlahsaldo) {
     }
 }
 
+// * function ini berguna untuk mengecek sisa saldo yang dimiliki oleh pengguna
 void cekSaldo(){
     float saldoTransfer;
     printf("%3sMasukkan Jumlah Uang yang Ingin Anda Transfer :\n%22s", "", "");
