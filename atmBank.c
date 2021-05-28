@@ -59,7 +59,7 @@ void antarRekening(){
 */
 int antarBank(){
     int counter = 0;
-    char inputKode[10], inputRekening[15];
+    char inputKode[10];
     FILE *fp = fopen("kodeBank.txt", "r");
 
     while(!feof(fp)) {
